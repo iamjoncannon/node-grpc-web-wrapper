@@ -1,9 +1,10 @@
 {
   "name": "gigan",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "grpc web superchargers",
   "main": "./dist/index.js",
   "scripts": {
+    "publish": "npm build build && npm publish",
     "clean": "npx tsc --build --clean",
     "test": "npm run clean && jest",
     "test:cov": "npx tsc --build --clean && jest --coverage",
