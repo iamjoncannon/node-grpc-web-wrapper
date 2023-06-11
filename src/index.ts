@@ -32,8 +32,9 @@ import { getSerializedMetadata, respondWithStatus } from "./trailers";
 export const grpcWebHandler = (
   grpcServer: grpc.Server,
   req: http.IncomingMessage,
-  res: GrcpServerCallImpl
+  _res: http.ServerResponse<http.IncomingMessage>
 ) => {
+  const res = _res as GrcpServerCallImpl;
   let body = "";
 
   req.on("data", (chunk) => {
