@@ -1,0 +1,58 @@
+{
+  "name": "gigan",
+  "version": "1.0.0",
+  "description": "grpc web superchargers",
+  "main": "./src/index.ts",
+  "scripts": {
+    "clean": "npx tsc --build --clean",
+    "test": "npm run clean && jest",
+    "test:cov": "npx tsc --build --clean && jest --coverage",
+    "build": "npm run clean && npx tsc",
+    "start": "npm run build && node ./dist/index.js",
+    "test:unary": "npm run build && MODE=testUnary node ./dist/mock/clients/webtext/client.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.8.14",
+    "async": "^3.2.4",
+    "google-protobuf": "^3.21.2",
+    "grpc-web": "^1.4.2",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.1",
+    "typescript": "^5.0.4",
+    "xhr2": "^0.2.1"
+  },
+  "types": "./dist/index.d.ts",
+  "devDependencies": {
+    "@types/async": "^3.2.20",
+    "@types/google-protobuf": "^3.15.6",
+    "@types/jest": "^29.5.2",
+    "@types/lodash": "^4.14.195",
+    "@types/node": "^20.2.5",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/*.ts"
+    ],
+    "setupFiles": [
+      "./test-setup.ts"
+    ],
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "js",
+      "mjs",
+      "cjs",
+      "jsx",
+      "ts",
+      "d.ts",
+      "tsx",
+      "json",
+      "node"
+    ]
+  }
+}
