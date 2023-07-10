@@ -19,7 +19,7 @@ export const endWithErrorHandling = (
 
 // see grpc-web GrpcWebClientReadableStream
 export const handleServerStream = (
-  handler: ServerStreamingHandler<any, any>,
+  handler: ServerStreamingHandler<unknown, unknown>,
   buffer: Buffer,
   res: GrpcServerWritableStream
 ) => {
