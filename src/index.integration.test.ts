@@ -2,12 +2,21 @@ import GrpcWebServer from ".";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { getMockGrpcService } from "./mock/server/service";
 import { GreeterClient as GreeterClientWebText } from "./mock/clients/webtext/HelloworldServiceClientPb";
-import { HelloReply, HelloRequest } from "./mock/clients/webtext/helloworld_pb";
+import {
+  HelloReply,
+  HelloRequest,
+  RepeatHelloRequest,
+} from "./mock/clients/webtext/helloworld_pb";
 import { Metadata, RpcError, Status } from "grpc-web";
+import { CONTENT_TYPE_HEADER, WEB_TEXT_HEADER } from "./util";
 
 describe("server integration test-- webtext successful", () => {
+  jest.useFakeTimers({ timerLimit: 100 });
+
   const mockService = getMockGrpcService();
   let testServer: Server<typeof IncomingMessage, typeof ServerResponse>;
+
+  const client = new GreeterClientWebText("http://localhost:1337", null, null);
 
   beforeEach(() => {
     testServer = GrpcWebServer(mockService, { cors: "*" }).listen(
@@ -20,13 +29,7 @@ describe("server integration test-- webtext successful", () => {
     testServer.close();
   });
 
-  it("handles valid webtext unary request- with steram", async () => {
-    const client = new GreeterClientWebText(
-      "http://localhost:1337",
-      null,
-      null
-    );
-
+  it("handles valid unary request", async () => {
     const request = new HelloRequest();
     request.setName("World");
 
@@ -50,21 +53,28 @@ describe("server integration test-- webtext successful", () => {
     });
   });
 
-  // note-- mixing promise and client stream calls leads to
-  // strange behavior
-  xit("handles valid webtext unary request- with promise", async () => {
-    const client = new GreeterClientWebText(
-      "http://localhost:1337",
-      null,
-      null
-    );
+  it("handles valid serverStream request", () => {
+    const streamRequest = new RepeatHelloRequest();
+    streamRequest.setName("World");
+    streamRequest.setCount(1);
 
-    const request = new HelloRequest();
-    request.setName("World");
+    const stream = client.sayRepeatHello(streamRequest, {});
 
-    // without the callback, its a generic Promise with the response
-    const promiseResponse = await client.sayHello(request, null);
-    expect(promiseResponse.getMessage()).toEqual("Goodbye World");
+    stream.on("data", (response) => {
+      expect(response.getMessage()).toEqual("Hey World0");
+    });
+
+    stream.on("status", (status: Status) => {
+      if (!status.details) {
+        expect(status.metadata?.["test-metadata"]).toEqual("from sendMetadata");
+      } else {
+        expect(status.metadata?.[CONTENT_TYPE_HEADER]).toEqual(WEB_TEXT_HEADER);
+      }
+    });
+
+    stream.on("end", () => {
+      expect(true);
+    });
   });
 });
 

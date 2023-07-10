@@ -15,15 +15,16 @@ const handleUnary = (
     res,
     (
       error: grpc.ServerErrorResponse | Partial<grpc.StatusObject> | null,
-      response: any,
+      response: string,
       trailers: grpc.Metadata | undefined,
-      flags: number | undefined // ?
+      // todo- handle flags
+      flags: number | undefined
     ) => {
       if (!!error) {
         respondWithStatus(
           res,
           error.code ?? grpc.status.UNKNOWN,
-          error.details ?? ""
+          error.details ?? "unknown error"
         );
         return;
       }
@@ -32,7 +33,11 @@ const handleUnary = (
 
       res.write(serialized);
 
-      res.end(getSerializedOkTrailers(trailers ?? new grpc.Metadata()));
+      const responseTrailers = getSerializedOkTrailers(
+        trailers ?? new grpc.Metadata()
+      );
+
+      res.end(responseTrailers);
     }
   );
 };

@@ -29,7 +29,7 @@ export const okStatus = () => {
 export const respondWithStatus = (
   res: GrcpServerCallImpl,
   code: grpc.status,
-  message: string
+  message = ""
 ) => {
   const statusBuilder = new grpc.StatusBuilder();
   const errorStatus = statusBuilder.withCode(code).withDetails(message).build();

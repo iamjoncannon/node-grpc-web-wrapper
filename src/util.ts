@@ -1,12 +1,9 @@
 import { GrcpServerCallImpl } from "./types";
 import * as http from "http";
-import { Metadata } from "@grpc/grpc-js";
-import { deadlineToString } from "@grpc/grpc-js/build/src/deadline";
 
-const GRPC_TIMEOUT_HEADER = "grpc-timeout";
-
-// see grpc-node/packages/grpc-js/src/deadline.ts
-const MAX_TIMEOUT_TIME = 2147483647;
+export const CONTENT_TYPE_HEADER = "content-type";
+export const WEB_TEXT_HEADER = "application/grpc-web-text";
+export const BINARY_HEADER = "application/grpc-web+proto";
 
 export const setDefaultHeaders = (res: GrcpServerCallImpl) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -23,7 +20,7 @@ export const setGrpcHeaders = (res: GrcpServerCallImpl) => {
     "access-control-expose-headers",
     "custom-header-1,grpc-status,grpc-message"
   );
-  res.setHeader("content-type", "application/grpc-web-text+proto");
+  res.setHeader(CONTENT_TYPE_HEADER, WEB_TEXT_HEADER);
   res.setHeader("grpc-accept-encoding", "identity");
   res.setHeader("grpc-encoding", "identity");
 };
@@ -59,41 +56,4 @@ export const isInvalidVerb = (
   }
 
   return false;
-};
-
-const units = {
-  m: 1,
-  S: 1000,
-  M: 60 * 1000,
-  H: 60 * 60 * 1000,
-} as { [key: string]: number };
-
-/**
- *  convert header deadline to epoch number
- */
-export const getDeadlineFromMetadata = (metadata: Metadata) => {
-  const timeoutMapValue = metadata.get(GRPC_TIMEOUT_HEADER);
-
-  try {
-    // theres a deadline
-    if (timeoutMapValue.length > 0) {
-      // convert header format to date value
-      const headerTimeout = timeoutMapValue[0];
-      const unit = String(headerTimeout.at(-1));
-
-      const headerTimeoutNumber = Number(
-        headerTimeout.slice(0, headerTimeout.length - 1)
-      );
-
-      // convert header deadline to ms
-      const headerTimeoutNumberinMs =
-        headerTimeoutNumber * units[unit as string];
-
-      // return current date plus converted ms
-      return new Date().getTime() + headerTimeoutNumberinMs;
-    }
-  } catch (err) {
-    return new Date().getTime() + MAX_TIMEOUT_TIME;
-  }
-  return new Date().getTime() + MAX_TIMEOUT_TIME;
 };

@@ -1,8 +1,21 @@
 import * as grpc from "@grpc/grpc-js";
 import { ServerStreamingHandler } from "@grpc/grpc-js/build/src/server-call";
 import { serializeMessage } from "./serialize";
-import { getSerializedOkTrailers } from "./trailers";
+import { getSerializedOkTrailers, respondWithStatus } from "./trailers";
 import { GrpcServerWritableStream } from "./types";
+
+export const endWithErrorHandling = (
+  res: GrpcServerWritableStream,
+  metadata: grpc.Metadata
+) => {
+  try {
+    res.write(getSerializedOkTrailers(metadata));
+    res.end();
+  } catch (err) {
+    console.error(err);
+    respondWithStatus(res, grpc.status.UNKNOWN, String(err));
+  }
+};
 
 // see grpc-web GrpcWebClientReadableStream
 export const handleServerStream = (
@@ -15,16 +28,12 @@ export const handleServerStream = (
   // https://grpc.github.io/grpc/node/grpc-ServerWritableStream.html
   const serverWritableStream = {
     ...res,
-    cancelled: false, // todo- how to set when client calls stream.cancel()
+    // todo- set when client calls stream.cancel()
+    cancelled: false,
     write: (val: string) => res.write(serializeMessage(handler, val)),
     end: (metadata: grpc.Metadata) => {
-      try {
-        res.write(getSerializedOkTrailers(metadata));
-        res.end();
-      } catch (err) {
-        console.error(err);
-        res.end();
-      }
+      // istanbul ignore next
+      endWithErrorHandling(res, metadata);
     },
     request,
   } as unknown as grpc.ServerWritableStream<any, any>;

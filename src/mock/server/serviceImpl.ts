@@ -39,6 +39,12 @@ export const doSayRepeatHello: handleServerStreamingCall<
   const name = call.request.name ?? "";
   const senders = [];
 
+  const md = new grpc.Metadata();
+
+  md.add("test-metadata", "from sendMetadata");
+
+  call.sendMetadata(md);
+
   function sender(name: string) {
     return (callback: () => void) => {
       call.write({

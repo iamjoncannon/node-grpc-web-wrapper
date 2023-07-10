@@ -1,2 +1,4 @@
 /dist
 /node_modules
+/coverage
+/src/mock/clients/build

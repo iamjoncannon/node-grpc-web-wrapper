@@ -9,7 +9,8 @@
     "test:cov": "npx tsc --build --clean && jest --coverage",
     "build": "npm run clean && npx tsc",
     "start": "npm run build && node ./dist/index.js",
-    "test:unary": "npm run build && MODE=testUnary node ./dist/mock/clients/webtext/client.js"
+    "test:unary": "npm run build && TEST=unary node ./dist/mock/clients/client.js",
+    "test:stream": "npm run build && TEST=stream node ./dist/mock/clients/client.js"
   },
   "keywords": [],
   "author": "",
@@ -35,12 +36,20 @@
     "ts-jest": "^29.1.0"
   },
   "jest": {
+    "collectCoverage": true,
     "collectCoverageFrom": [
       "src/*.ts"
     ],
     "setupFiles": [
       "./test-setup.ts"
     ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "lines": 100,
+        "branches": 100
+      }
+    },
     "preset": "ts-jest",
     "testEnvironment": "node",
     "moduleFileExtensions": [
