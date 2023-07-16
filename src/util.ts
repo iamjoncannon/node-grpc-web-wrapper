@@ -1,5 +1,8 @@
 import { GrcpServerCallImpl } from "./types";
 import * as http from "http";
+import * as grpc from "@grpc/grpc-js";
+import { getDeadlineFromMetadata, getTimeoutinMs } from "./deadline";
+import { getSerializedMetadata, respondWithStatus } from "./trailers";
 
 export const CONTENT_TYPE_HEADER = "content-type";
 export const WEB_TEXT_HEADER = "application/grpc-web-text";
@@ -46,7 +49,7 @@ export const isInvalidVerb = (
   req: http.IncomingMessage,
   res: GrcpServerCallImpl
 ) => {
-  if (["GET", "POST"].indexOf(req?.method ?? "") == -1) {
+  if (["GET", "POST"].indexOf(req.method ?? "") == -1) {
     res.writeHead(405);
     const response = JSON.stringify({
       message: `${req.method} is not allowed for the request.`,
@@ -56,4 +59,36 @@ export const isInvalidVerb = (
   }
 
   return false;
+};
+
+export const setServerSurfaceCallMethods = (res: GrcpServerCallImpl) => {
+  // ServerSurfaceCall properties
+  res.sendMetadata = (responseMetadata: grpc.Metadata) => {
+    try {
+      res.write(getSerializedMetadata(responseMetadata));
+    } catch (err) {
+      console.error(String(err));
+    }
+  };
+
+  res.getDeadline = () => getDeadlineFromMetadata(res.metadata);
+
+  res.getPeer = () => res.req.url ?? "";
+  res.getPath = () => res.req.url ?? "";
+};
+
+export const setTimeoutDeadline = (
+  res: GrcpServerCallImpl,
+  _setTimeout = setTimeout
+) => {
+  const timeout = getTimeoutinMs(res.metadata);
+
+  // see /grpc-node/packages/grpc-js/src/deadline.ts
+  _setTimeout(() => {
+    respondWithStatus(
+      res,
+      grpc.status.DEADLINE_EXCEEDED,
+      "deadline exceeded: " + timeout + "ms"
+    );
+  }, timeout);
 };

@@ -1,4 +1,4 @@
-import GrpcWebServer from ".";
+import GrpcWebServer, { grpcWebHandler, _grpcWebHandler } from ".";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { getMockGrpcService } from "./mock/server/service";
 import { GreeterClient as GreeterClientWebText } from "./mock/clients/webtext/HelloworldServiceClientPb";
@@ -9,8 +9,12 @@ import {
 } from "./mock/clients/webtext/helloworld_pb";
 import { Metadata, RpcError, Status } from "grpc-web";
 import { CONTENT_TYPE_HEADER, WEB_TEXT_HEADER } from "./util";
+import * as grpc from "@grpc/grpc-js";
+import * as http from "http";
+import { GrcpServerCallImpl } from "./types";
+import { respondWithStatus } from "./trailers";
 
-describe("server integration test-- webtext successful", () => {
+describe("server integration test", () => {
   jest.useFakeTimers({ timerLimit: 100 });
 
   const mockService = getMockGrpcService();
@@ -114,7 +118,7 @@ describe("server integration tests-- error handlers", () => {
       }
     );
 
-    // interestingly, this won't throw an error
+    // this won't throw an error
     stream.on("error", (err) => {
       expect(err).toEqual(null);
     });
@@ -130,6 +134,25 @@ describe("server integration tests-- error handlers", () => {
     const res = await fetch("http://localhost:1337", { method: "DELETE" });
     const response = await res.json();
     expect(response.message).toEqual("DELETE is not allowed for the request.");
+  });
+
+  it("returns error if called with non web text protocol", async () => {
+    const headers = { CONTENT_TYPE_HEADER: "not web text" };
+
+    const res = await fetch("http://localhost:1337", {
+      method: "GET",
+      headers,
+    });
+
+    const response = await res.text();
+
+    const decoded = Buffer.from(response, "base64").toString();
+
+    expect(
+      decoded.includes(
+        "grpc-message:binary%20wire%20format%20not%20implemented"
+      )
+    );
   });
 });
 
@@ -148,5 +171,54 @@ describe("preflight", () => {
   it("handles preflight options call", async () => {
     const res = await fetch("http://localhost:1337", { method: "OPTIONS" });
     expect(res.status).toEqual(204);
+  });
+});
+
+describe("handles res.body pattern", () => {
+  it("should handle body appended to req by frameworks like next", () => {
+    const grpcServer = jest.fn() as unknown as grpc.Server;
+    const body = "body";
+    const req = { body } as unknown as http.IncomingMessage;
+    const res =
+      jest.fn() as unknown as http.ServerResponse<http.IncomingMessage>;
+    const handler = jest.fn();
+
+    grpcWebHandler(grpcServer, req, res, handler);
+
+    expect(handler).toHaveBeenCalledWith(grpcServer, req, res, body);
+  });
+});
+
+describe("_grpcWebHandler", () => {
+  it("handles arbitrary errors", () => {
+    const headers = { CONTENT_TYPE_HEADER: WEB_TEXT_HEADER };
+    const body = "body";
+    const res = {
+      setHeaders: jest.fn(),
+      end: jest.fn(),
+    } as unknown as GrcpServerCallImpl;
+    const req = { headers } as unknown as http.IncomingMessage & {
+      body?: unknown;
+    };
+
+    const handlers = {
+      get: () => {
+        throw new Error();
+      },
+    };
+
+    const grpcServer = { handlers } as unknown as grpc.Server;
+
+    _grpcWebHandler(grpcServer, req, res, body);
+
+    const call = (res.end as jest.Mock).mock.calls[0][0];
+
+    const decoded = Buffer.from(call, "base64").toString();
+
+    expect(
+      decoded.includes(
+        "grpc-message:binary%20wire%20format%20not%20implemented"
+      )
+    );
   });
 });

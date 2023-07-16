@@ -59,7 +59,11 @@ export const doSayRepeatHello: handleServerStreamingCall<
   }
 
   async.series(senders, () => {
-    const metadata = copyMetadata(call);
-    call.end(metadata);
+    // const metadata = copyMetadata(call);
+
+    const md = new grpc.Metadata();
+    md.set("test", "testing");
+
+    call.end(md);
   });
 };

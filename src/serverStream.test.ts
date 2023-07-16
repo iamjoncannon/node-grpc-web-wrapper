@@ -1,5 +1,4 @@
 import { Metadata, status } from "@grpc/grpc-js";
-import { ServerStreamingHandler } from "@grpc/grpc-js/build/src/server-call";
 import { endWithErrorHandling } from "./serverStream";
 import { getSerializedOkTrailers, respondWithStatus } from "./trailers";
 import { GrpcServerWritableStream } from "./types";

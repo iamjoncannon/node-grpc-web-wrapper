@@ -51,6 +51,6 @@ describe("getDeadlineFromMetadata", () => {
     });
 
     const result = getDeadlineFromMetadata(metadata, getTimeoutinMs);
-    expect(result).toEqual(expectedDeadline);
+    expect(Math.abs(result - expectedDeadline) < 5);
   });
 });

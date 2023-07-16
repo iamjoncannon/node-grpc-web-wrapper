@@ -34,19 +34,17 @@ export const respondWithStatus = (
   const statusBuilder = new grpc.StatusBuilder();
   const errorStatus = statusBuilder.withCode(code).withDetails(message).build();
 
-  const trailers = serializeTrailers(
-    formatTrailersForSerialization(
-      processStatusObjectForSerialization(errorStatus)
-    )
-  );
-
+  const objForSerial = processStatusObjectForSerialization(errorStatus);
+  const formatted = formatTrailersForSerialization(objForSerial);
+  const trailers = serializeTrailers(formatted);
   res.end(trailers);
 };
 
 export const processMetadataForSerialization = (metadata: grpc.Metadata) => {
   return Object.entries(metadata.getMap()).reduce((a, c) => {
     // grpc.MetadataValue = string | buffer
-    a[c[0]] = c[1] as string; // to support binary, will need to convert this grpc.MetadataValue to string
+    // to support binary, will need to convert this grpc.MetadataValue to string
+    a[c[0]] = c[1] as string;
     return a;
   }, {} as { [key: string]: string });
 };

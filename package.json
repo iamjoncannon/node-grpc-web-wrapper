@@ -8,7 +8,7 @@
     "test": "npm run clean && jest",
     "test:cov": "npx tsc --build --clean && jest --coverage",
     "build": "npm run clean && npx tsc",
-    "start": "npm run build && node ./dist/index.js",
+    "start": "npm run build && node ./dist/testService.js",
     "test:unary": "npm run build && TEST=unary node ./dist/mock/clients/client.js",
     "test:stream": "npm run build && TEST=stream node ./dist/mock/clients/client.js"
   },
