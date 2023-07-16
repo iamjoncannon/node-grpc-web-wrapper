@@ -1,7 +1,7 @@
 {
-  "name": "gigan",
-  "version": "1.0.6",
-  "description": "grpc web superchargers",
+  "name": "node-grpc-web-wrapper",
+  "version": "1.0.7",
+  "description": "grpc-web node in process translator",
   "main": "./dist/index.js",
   "scripts": {
     "clean": "npx tsc --build --clean",
@@ -12,7 +12,10 @@
     "test:unary": "npm run build && TEST=unary node ./dist/mock/clients/client.js",
     "test:stream": "npm run build && TEST=stream node ./dist/mock/clients/client.js"
   },
-  "keywords": [],
+  "keywords": [
+    "grpc-web",
+    "node"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
