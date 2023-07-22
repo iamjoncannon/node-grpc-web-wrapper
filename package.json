@@ -1,6 +1,6 @@
 {
   "name": "node-grpc-web-wrapper",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "grpc-web node in process translator",
   "main": "./dist/index.js",
   "scripts": {

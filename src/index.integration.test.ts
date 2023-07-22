@@ -1,4 +1,4 @@
-import GrpcWebServer, { grpcWebHandler, _grpcWebHandler } from ".";
+import GrpcWebServer, { grpcWebHandler } from ".";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { getMockGrpcService } from "./mock/server/service";
 import { GreeterClient as GreeterClientWebText } from "./mock/clients/webtext/HelloworldServiceClientPb";
@@ -13,6 +13,7 @@ import * as grpc from "@grpc/grpc-js";
 import * as http from "http";
 import { GrcpServerCallImpl } from "./types";
 import { respondWithStatus } from "./trailers";
+import { _grpcWebHandler } from "./handler";
 
 describe("server integration test", () => {
   jest.useFakeTimers({ timerLimit: 100 });
@@ -179,13 +180,14 @@ describe("handles res.body pattern", () => {
     const grpcServer = jest.fn() as unknown as grpc.Server;
     const body = "body";
     const req = { body } as unknown as http.IncomingMessage;
-    const res =
-      jest.fn() as unknown as http.ServerResponse<http.IncomingMessage>;
-    const handler = jest.fn();
+    const res = {
+      end: jest.fn(),
+    } as unknown as http.ServerResponse<http.IncomingMessage> &
+      GrcpServerCallImpl;
 
-    grpcWebHandler(grpcServer, req, res, handler);
+    grpcWebHandler(grpcServer, req, res);
 
-    expect(handler).toHaveBeenCalledWith(grpcServer, req, res, body);
+    expect(res.end).toHaveBeenCalled();
   });
 });
 
