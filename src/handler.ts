@@ -24,17 +24,17 @@ import { respondWithStatus } from "./trailers";
 export const _grpcWebHandler = (
   grpcServer: grpc.Server,
   req: http.IncomingMessage & { body?: unknown },
-  res: GrcpServerCallImpl,
+  res: unknown,
   body: string
 ) => {
   try {
-    setGrpcHeaders(res);
+    setGrpcHeaders(res as GrcpServerCallImpl);
 
     const protocol = req.headers[CONTENT_TYPE_HEADER];
 
     if (protocol !== WEB_TEXT_HEADER) {
       respondWithStatus(
-        res,
+        res as GrcpServerCallImpl,
         grpc.status.UNIMPLEMENTED,
         "binary wire format not implemented"
       );
@@ -50,7 +50,7 @@ export const _grpcWebHandler = (
 
     if (!handler) {
       respondWithStatus(
-        res,
+        res as GrcpServerCallImpl,
         grpc.status.UNIMPLEMENTED,
         req.url + " not implemented"
       );
@@ -60,9 +60,9 @@ export const _grpcWebHandler = (
     // @ts-ignore -- metadata is read only property of ServerCallImpl
     res.metadata = grpc.Metadata.fromHttp2Headers(req.headers);
 
-    setServerSurfaceCallMethods(res);
+    setServerSurfaceCallMethods(res as GrcpServerCallImpl);
 
-    setTimeoutDeadline(res);
+    setTimeoutDeadline(res as GrcpServerCallImpl);
 
     if (handler.type === "unary") {
       handleUnary(
@@ -83,6 +83,10 @@ export const _grpcWebHandler = (
     return;
   } catch (err) {
     console.error({ err });
-    respondWithStatus(res, grpc.status.UNKNOWN, "server error");
+    respondWithStatus(
+      res as GrcpServerCallImpl,
+      grpc.status.UNKNOWN,
+      "server error"
+    );
   }
 };

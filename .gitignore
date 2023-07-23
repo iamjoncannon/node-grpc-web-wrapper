@@ -2,4 +2,7 @@
 /node_modules
 /coverage
 /src/mock/clients/build
-/examples
+/examples/grpc-chat-next
+/examples/grpc-node-chat
+/examples/grpc-chat/server/dist
+/examples/grpc-chat/server/node_modules

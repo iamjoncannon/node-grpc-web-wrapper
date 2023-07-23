@@ -31,9 +31,9 @@ export const handleServerStream = (
     // todo- set when client calls stream.cancel()
     cancelled: false,
     write: (val: string) => res.write(serializeMessage(handler, val)),
-    end: (metadata: grpc.Metadata) => {
+    end: (metadata: grpc.Metadata | undefined) => {
       // istanbul ignore next
-      endWithErrorHandling(res, metadata);
+      endWithErrorHandling(res, metadata ?? new grpc.Metadata());
     },
     request,
   } as unknown as grpc.ServerWritableStream<any, any>;

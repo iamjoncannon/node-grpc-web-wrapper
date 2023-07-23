@@ -1,0 +1,18 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:express": "npx tsc && node ./dist/express.js",
+    "start:standalone": "npx tsc && node ./dist/standalone.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/cors": "^2.8.13",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-grpc-web-wrapper": "^1.0.8"
+  }
+}

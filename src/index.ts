@@ -21,7 +21,7 @@ import { _grpcWebHandler } from "./handler";
 export const grpcWebHandler = (
   grpcServer: grpc.Server,
   req: http.IncomingMessage & { body?: unknown },
-  res: http.ServerResponse<http.IncomingMessage> & GrcpServerCallImpl
+  res: unknown
 ) => {
   const _body = req.body;
 

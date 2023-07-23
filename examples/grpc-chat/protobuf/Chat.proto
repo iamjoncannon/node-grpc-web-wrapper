@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+  rpc PostMessage(PostMessageRequest) returns (PostMessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc ChatFeed(LoginRequest) returns (stream ChatPost);
+}
+
+message LoginRequest {}
+
+message ChatPostFromClient {
+    string content = 1;
+}
+
+message ChatPost {
+    int64 time = 1;
+    string chatId = 2;
+    string content = 3;
+    string handle = 4;
+}
+
+message PostMessageRequest {
+    ChatPostFromClient chatPostFromClient = 1;
+}
+
+message PostMessageResponse {
+    bool success = 1;
+}
+
+message GetMessagesRequest {}
+
+message GetMessagesResponse {
+    repeated ChatPost chatPosts = 1;
+} 

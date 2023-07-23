@@ -1,0 +1,19 @@
+{
+  "include": ["./**/*" ],
+  "exclude": ["service/dist"],
+  "compilerOptions": {
+    "outDir": "./dist",                                   
+    "target": "es2016",                                  
+
+    "typeRoots": ["./node_modules/@types", "src/declarations.d.ts"],                                  
+    "module": "commonjs",                                
+    "esModuleInterop": true,                             
+    "forceConsistentCasingInFileNames": true,            
+
+    "strict": true,                                      
+    "noImplicitAny": true,                            
+    "strictNullChecks": true,                         
+    "strictFunctionTypes": true,                      
+    "skipLibCheck": true                                 
+  }
+}
