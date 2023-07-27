@@ -6,10 +6,10 @@ import * as grpc from "@grpc/grpc-js";
 import { ProtoGrpcType } from "./proto/helloworld";
 import { GreeterHandlers } from "./proto/helloworld/Greeter";
 import { doSayHello, doSayRepeatHello } from "./serviceImpl";
+import path from "path";
 
 export const getMockGrpcService = () => {
-  const protoFileName =
-    "/Users/jonathancannon/gigan_grpc/gigan-grpc-web-wrapper-example/service/proto/helloworld.proto";
+  const protoFileName = path.join(__dirname + "/proto/helloworld.proto");
 
   const packageDefinition = loadSync(protoFileName, {
     keepCase: true,

@@ -3,10 +3,12 @@ import { loadPackageDefinition } from "@grpc/grpc-js";
 import * as grpc from "@grpc/grpc-js";
 import { ProtoGrpcType } from "../protobuf/Chat";
 import ChatService from "./ChatService";
+import path from "path";
 
 export const createGrpcServer = () => {
-  const protoFileName =
-    "/Users/jonathancannon/gigan/examples/grpc-chat/protobuf/Chat.proto";
+  const parent = path.resolve(__dirname, "..");
+
+  const protoFileName = path.join(parent + "/protobuf/Chat.proto");
 
   const packageDefinition = loadSync(protoFileName, {
     keepCase: true,
